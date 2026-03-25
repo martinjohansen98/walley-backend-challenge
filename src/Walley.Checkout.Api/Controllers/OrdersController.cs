@@ -33,9 +33,14 @@ public class OrdersController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<Order>> GetById(string id)
     {
-        // Task 4: This error handling needs improvement.
-        // Right now any issue results in a generic 500 from the exception middleware.
+        if (string.IsNullOrWhiteSpace(id))
+            return BadRequest(new ApiErrorResponse { Message = "Order ID is required.", StatusCode = 400 });
+
         var order = await _orderService.GetOrderByIdAsync(id);
+
+        if (order == null)
+            return NotFound(new ApiErrorResponse { Message = $"Order '{id}' was not found.", StatusCode = 404 });
+
         return Ok(order);
     }
 
